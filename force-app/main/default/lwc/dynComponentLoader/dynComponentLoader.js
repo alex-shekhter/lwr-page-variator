@@ -102,7 +102,7 @@ export default class DynComponentLoader extends LightningElement {
     // is not called it, but it is called when we change @api properties in the Editor,
     // In this case we will not use it
     //
-    // TODO: file BUG with the platform team
+    // TODO: file BUG
     //
     this.observer?.disconnect();
   }

@@ -28,40 +28,6 @@ export default class DynLoadManager extends LightningElement {
   getPageReferenceParameters(currentPageReference) {
     if (currentPageReference && this._currentUri !== window.location.href ) {
       this._currentUri = window.location.href;
-      /**
-       * 
-       * {
-          "type": "standard__objectPage",
-          "attributes": {
-            "objectApiName": "SalesPlayTemplate__c",
-            "actionName": "home"
-          },
-          "state": {
-            "filterName": "Default"
-          }
-        }
-
-        {
-          "type": "standard__recordPage",
-          "attributes": {
-            "objectApiName": "Opportunity",
-            "recordId": "0065900000LMfdbAAD",
-            "actionName": "view"
-          },
-          "state": {
-            "recordName": "partneruserchannelledopportunitygc"
-          }
-        }
-
-        {
-          "type": "comm__namedPage",
-          "attributes": {
-            "name": "Home"
-          },
-          "state": {}
-        }
-       * 
-       */
       console.debug(
         `--->>> DynLoadManager::getPageReferenceParameters recordId=${this._recordId}`, 
         "currentPageReference", currentPageReference 
@@ -205,10 +171,6 @@ export default class DynLoadManager extends LightningElement {
   }
 
   processAlreadyRegisteredComponents() {
-    // if ( this.isInBuilder ) {
-    //   return;
-    // }
-
     const cmpsToShow = this.checkComponentAudiences( Array.from( this.componentsById.keys() ) );
     console.debug( `--->>> DynLoadManager::processAlreadyRegisteredComponents: cmpsToShow: `, JSON.stringify( cmpsToShow ) );
     if ( !cmpsToShow || cmpsToShow.length === 0 ) {
@@ -319,7 +281,6 @@ export default class DynLoadManager extends LightningElement {
     if ( cmp && cmp.loadMode === "onload"  ) {
       const res = this.checkAudience( msg );
       if ( res.show ) {
-        // this.sendMessage( MESSAGE_FACTORY.DYN_CMP_CMD_SHOW( msg.payload.cmpId, true ) );
         this.sendMessage( MESSAGE_FACTORY.DYN_CMP_CMD_SHOW( res.cmpIds, res.show ) );
       }
     } 
@@ -333,7 +294,6 @@ export default class DynLoadManager extends LightningElement {
     if ( cmp && cmp.loadMode === "onvisible" ) {
       const res = this.checkAudience( msg );
       if ( res.show ) {
-        // this.sendMessage( MESSAGE_FACTORY.DYN_CMP_CMD_SHOW( msg.payload.cmpId, true ) );
         this.sendMessage( MESSAGE_FACTORY.DYN_CMP_CMD_SHOW( res.cmpIds, true ) );
       }
     } 
