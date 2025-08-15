@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Audience_Id__c</fullName>
+    <caseSensitive>true</caseSensitive>
+    <description>Unique Id (Name) of the Audience.</description>
+    <externalId>false</externalId>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>Unique Id (Name) of the Audience.</inlineHelpText>
+    <label>Audience Id</label>
+    <length>65</length>
+    <required>true</required>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

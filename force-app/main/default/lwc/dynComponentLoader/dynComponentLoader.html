@@ -1,0 +1,30 @@
+<template>
+    <template if:true={isAura}>
+       <div style="color: red;">Component is only for LWR sites, not Aura</div>
+    </template>
+    
+    <template if:false={isAura}>
+        
+      <div class={computeContainerClass} data-slot-wrapper>
+      
+        <div if:true={needShowInternalsStatus} class="info-helper slds-text-body_small">
+          <div><b>Component:</b> {componentId}</div>
+          <div><b>Page Audience:</b> {pageAudience};</div>
+          <div><b>Component Audience:</b> {compAudience};</div>
+          <div><b>Loading Mode:</b> {loadingMode};</div>
+          <div><b>Connected to loading manager:</b> {exbIsConnectedToLoadingManager};</div>
+          <div><b>Total Messages sent:</b> {exbTotalMessagesSent};</div>
+          <div><b>Total Messages recieved:</b> {exbTotalMessagesRecieved};</div>
+        </div>
+  
+        <div if:true={showNow} class={computeCellClasses} data-cmp-id={componentId}>
+          <slot name="Content-Region">Content Region</slot>
+        </div>
+  
+        <div class="builder-spacing" if:true={isInBuilder}></div>
+      </div>
+  
+      <c-lms-pub-sub-helper parent-id={componentId} onmessagereceived={handleMessage}></c-lms-pub-sub-helper>
+
+    </template>
+</template>

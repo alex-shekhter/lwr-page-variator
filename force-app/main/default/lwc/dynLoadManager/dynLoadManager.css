@@ -1,0 +1,13 @@
+.info-panel {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 10px;
+  
+  background-color: bisque;
+  border-width: 1px;
+  border-style: solid;
+  border-color: black;
+
+  margin-bottom: 1em;
+}
+

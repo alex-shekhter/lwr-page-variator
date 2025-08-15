@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>63.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Dynamic Component Loader</masterLabel>
+  <targets>
+    <target>lightningCommunity__Page</target>
+    <target>lightningCommunity__Default</target>
+  </targets>
+  <capabilities>
+    <capability>lightning__dynamicComponent</capability>
+  </capabilities>
+  <targetConfigs>
+    <targetConfig targets="lightningCommunity__Default">
+        <property name="title" type="String" description="Pleaceholder title"></property>
+        <property name="loadingMode" type="String" datasource="onload,onvisible,background" description="Loading Mode" default="onload"></property>
+        <property name="loadingOrder" type="String" datasource="0,1,2,3,4,5,6,7,8,910,11,12,13,14,15,16,17,18,19,20" default="0" description="Order of loading. 0 - First, N - Last"></property>
+
+        <property name="pageAudience" type="String" editor="c/audienceSelectorCustomEditor" description="Audience Rule Ids used to restrict visibility at the page variation level"></property>
+        <property name="compAudience" type="String" editor="c/audienceSelectorCustomEditor" description="Audience Rule Ids used to restrict visibility for the component"></property>
+
+        <!-- <property name="pageAudience" type="String" datasource="apex://AudiencePicklistGenerator" description="Audience Rule Ids used to restrict visibility at the page variation level"></property>
+        <property name="compAudience" type="String" datasource="apex://AudiencePicklistGenerator" description="Audience Rule Ids used to restrict visibility for the component"></property> -->
+        <property name="description" type="String" description="Description of the contained component and purpose"></property>
+        <property name="isDebug" type="Boolean" default="false"></property>
+    </targetConfig>
+  </targetConfigs>
+</LightningComponentBundle>

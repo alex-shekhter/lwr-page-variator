@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
+    <masterLabel>UniversalTopicBasedChannel</masterLabel>
+    <isExposed>true</isExposed>
+    <description>Lightning Message Channel for simplified component communication</description>
+    <lightningMessageFields>
+        <fieldName>topic</fieldName>
+        <description>Target/topic for the message</description>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <fieldName>payload</fieldName>
+        <description>Arbitrary payload data</description>
+    </lightningMessageFields>
+</LightningMessageChannel>

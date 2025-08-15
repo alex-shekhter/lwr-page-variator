@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Architectural Document: LWR Page Dynamic Loading and Variation Solution</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      /** max-width: 36em; **/
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    /*** @media (max-width: 1200px) { **/
+    @media (max-width: 1200px) {
+        body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Architectural Document: LWR Page Dynamic Loading and
+Variation Solution</h1>
+</header>
+<!-- <h1
+id="architectural-document-lwr-page-dynamic-loading-and-variation-solution">Architectural
+Document: LWR Page Dynamic Loading and Variation Solution</h1> -->
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#1-introduction">1. Introduction</a>
+<ul>
+<li><a href="#problem">Problem</a></li>
+<li><a href="#solution-overview">Solution Overview</a></li>
+</ul></li>
+<li><a href="#2-solution-architecture">2. Solution Architecture</a>
+<ul>
+<li><a href="#key-components">Key Components</a></li>
+<li><a href="#interaction-flow">Interaction Flow</a></li>
+</ul></li>
+<li><a href="#3-audience-rule-language-grammar">3. Audience Rule
+Language Grammar</a>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#grammar-ebnf-style">Grammar (EBNF Style)</a></li>
+<li><a href="#key-elements-explained">Key Elements Explained</a></li>
+<li><a href="#examples">Examples</a></li>
+</ul></li>
+<li><a href="#4-pros-of-the-solution">4. Pros of the Solution</a></li>
+<li><a href="#5-potential-cons">5. Potential Cons</a></li>
+<li><a href="#6-implementation-details">6. Implementation
+Details</a></li>
+<li><a href="#7-configuration-guide-experience-builder">7. Configuration
+Guide (Experience Builder)</a></li>
+<li><a href="#8-diagrams">8. Diagrams</a>
+<ul>
+<li><a href="#custom-metadata-structure-diagram">Custom Metadata
+Structure Diagram</a></li>
+<li><a href="#class-diagram-simplified-lwc--core-logic">Class Diagram
+(Simplified LWC &amp; Core Logic)</a></li>
+<li><a
+href="#sequence-diagram-initial-page-load-onload-component">Sequence
+Diagram: Initial Page Load (onload component)</a></li>
+<li><a
+href="#sequence-diagram-initial-page-load-onvisible-component">Sequence
+Diagram: Initial Page Load (onvisible component)</a></li>
+<li><a
+href="#sequence-diagram-context-change-simplified--eg-record-update-triggering-refreshre-eval">Sequence
+Diagram: Context Change (Simplified -e.g. Record Update triggering
+refresh/re-eval)</a></li>
+</ul></li>
+</ul>
+<h2 id="1-introduction">1. Introduction</h2>
+<h3 id="problem">Problem</h3>
+<p>Salesforce Lightning Web Runtime (LWR) sites lack the built-in page
+variation functionality available in Aura sites. While LWR offers
+component variations, adapting existing Aura LWC components solely for
+this purpose can involve significant refactoring efforts. This
+necessitates a custom solution to achieve dynamic page and component
+visibility based on audience criteria within LWR sites.</p>
+<h3 id="solution-overview">Solution Overview</h3>
+<p>This document outlines an architectural solution that implements
+page-level and component-level variations for Salesforce LWR sites. It
+leverages a proprietary conditional language evaluated by a central
+JavaScript interpreter to determine the visibility of specific
+components based on defined audience rules.</p>
+<p>The core principle is:</p>
+<ul>
+<li>If no audience rule is defined for a page or component, it is always
+visible.</li>
+<li>If audience rules <em>are</em> defined, the component is only
+displayed if the relevant rule(s) evaluate to true based on the current
+user and record context.</li>
+</ul>
+<p>This approach effectively ports the concept of Aura page variations
+to LWR by using a combination of custom LWC components, Lightning
+Message Service (LMS), and Apex controllers.</p>
+<h2 id="2-solution-architecture">2. Solution Architecture</h2>
+<p>The solution comprises several key components working together to
+manage dynamic component visibility.</p>
+<h3 id="key-components">Key Components</h3>
+<ul>
+<li><p><strong><code>dynLoadManager</code> (LWC):</strong></p>
+<ul>
+<li><strong>Role:</strong> Acts as the central orchestrator on an LWR
+page. Each page requiring dynamic content will host one instance.</li>
+<li><strong>Responsibilities:</strong>
+<ul>
+<li>Fetches audience context (user info, record data) and audience rules
+via Apex (<code>AudienceContextController</code>) upon initialization.
+The context fetching depends on the page type (Named Page, Object Page,
+Record Page).</li>
+<li>Contains the JavaScript interpreter
+(<code>ConditionInterpreter</code>) to evaluate the proprietary
+conditional language defined in audience rules.</li>
+<li>Maintains a registry of <code>dynComponentLoader</code> instances
+present on the page.</li>
+<li>Determines the target page audience based on prioritized rules
+fetched from
+<code>LWR_Audience_Page_Level_Rule_Priority__mdt</code>.</li>
+<li>Evaluates both page-level and component-level audience rules to
+decide component visibility.</li>
+<li>Communicates visibility decisions
+(<code>showNow = true/false</code>) to relevant
+<code>dynComponentLoader</code> components via LMS messages.</li>
+<li>Provides debugging and visibility control features within the
+Experience Builder.</li>
+</ul></li>
+<li><strong>Visibility:</strong> Visible in Experience Builder for
+configuration but not rendered on the live site.</li>
+</ul></li>
+<li><p><strong><code>dynComponentLoader</code> (LWC):</strong></p>
+<ul>
+<li><strong>Role:</strong> Acts as a wrapper or container for the actual
+business LWC that needs conditional visibility. Multiple instances can
+exist on a page.</li>
+<li><strong>Responsibilities:</strong>
+<ul>
+<li>Registers itself with the <code>dynLoadManager</code> upon
+initialization or when requested via LMS, sending its
+<code>componentId</code>, <code>pageAudience</code>,
+<code>compAudience</code>, <code>loadingMode</code>, and
+<code>loadingOrder</code>.</li>
+<li>Holds the actual business component within its default slot
+(<code>&lt;slot&gt;</code>).</li>
+<li>Listens for LMS messages (specifically
+<code>DYN_CMP_CMD_SHOW</code>) from the
+<code>dynLoadManager</code>.</li>
+<li>Conditionally renders the wrapped component based on the
+<code>showNow</code> flag received from the
+<code>dynLoadManager</code>.</li>
+<li>Supports different <code>loadingMode</code> options (e.g.,
+<code>onload</code>, <code>onvisible</code>). For
+<code>onvisible</code>, it uses <code>IntersectionObserver</code> to
+notify the <code>dynLoadManager</code> when it scrolls into view.</li>
+<li>Sends messages back to the manager if its <code>pageAudience</code>
+property changes.</li>
+</ul></li>
+<li><strong>Visibility:</strong> Visible in Experience Builder for
+configuration, but the wrapper itself is not intended to be visually
+rendered on the live site (only the conditionally rendered child
+component is).</li>
+</ul></li>
+<li><p><strong><code>lmsPubSubHelper</code> (LWC):</strong></p>
+<ul>
+<li><strong>Role:</strong> A reusable utility component facilitating
+communication over a universal LMS channel
+(<code>UniversalTopicBasedChannel__c</code>).</li>
+<li><strong>Responsibilities:</strong>
+<ul>
+<li>Subscribes to the specified LMS channel upon connection.</li>
+<li>Dispatches received messages to its parent LWC via a custom event
+(<code>messagereceived</code>).</li>
+<li>Provides a public API method (<code>sendMessage</code>) for parent
+components (<code>dynLoadManager</code>,
+<code>dynComponentLoader</code>) to publish messages onto the LMS
+channel.</li>
+<li>Handles subscription cleanup upon disconnection.</li>
+</ul></li>
+</ul></li>
+<li><p><strong><code>dynLoaderMessageHelper</code> (JavaScript
+Module):</strong></p>
+<ul>
+<li><strong>Role:</strong> Defines the structure and constants for
+messages exchanged via LMS between the manager and loader
+components.</li>
+<li><strong>Responsibilities:</strong>
+<ul>
+<li>Exports <code>TOPICS</code> constants representing different message
+types (e.g., <code>DYN_CMP_REGISTER</code>,
+<code>DYN_CMP_CMD_SHOW</code>, <code>DYN_CMP_VISIBLE</code>).</li>
+<li>Exports a <code>MESSAGE_FACTORY</code> object containing factory
+functions to create standardized message payloads for each topic,
+ensuring consistent communication.</li>
+</ul></li>
+</ul></li>
+<li><p><strong><code>AudienceContextController</code>
+(Apex):</strong></p>
+<ul>
+<li><strong>Role:</strong> Server-side controller responsible for
+fetching the necessary data for audience evaluation.</li>
+<li><strong>Responsibilities:</strong>
+<ul>
+<li>Provides <code>@AuraEnabled</code> methods
+(<code>getContextAndRulesByRecordId</code>,
+<code>getContextAndRulesByObjectApiName</code>,
+<code>getContextAndRulesByPageName</code>) callable from
+<code>dynLoadManager</code>.</li>
+<li>Retrieves user context (Profile, Role, Custom Permissions via
+<code>getUserCustomPermissions</code>, Location).</li>
+<li>Retrieves relevant SObject data based on the current record context
+and fields specified in <code>LWR_Audience_Resource__mdt</code> custom
+metadata. Uses <code>SObjectNullValueSubstituter</code> to handle
+potential null values in queried data.</li>
+<li>Fetches audience rule definitions
+(<code>LWR_Audience_Rule__mdt</code>) and page-level priorities
+(<code>LWR_Audience_Page_Level_Rule_Priority__mdt</code>) using the
+<code>AudienceMetadataProvider</code>.</li>
+<li>Bundles context, rules, and priorities into the
+<code>AudienceRulesAndContext</code> wrapper class for returning to the
+LWC.</li>
+</ul></li>
+</ul></li>
+<li><p><strong><code>AudienceMetadata</code> (Apex):</strong></p>
+<ul>
+<li><strong>Role:</strong> Provides an abstraction layer for accessing
+audience-related Custom Metadata Types (CMDTs).</li>
+<li><strong>Responsibilities:</strong>
+<ul>
+<li>Defines the <code>AudienceMetadataProvider</code> interface,
+specifying methods to get rules, priorities, and resource field
+definitions.</li>
+<li>Includes <code>RealAudienceMetadataProvider</code>, a concrete
+implementation that queries the <code>LWR_Audience_Rule__mdt</code>,
+<code>LWR_Audience_Page_Level_Rule_Priority__mdt</code>, and
+<code>LWR_Audience_Resource__mdt</code> CMDTs.</li>
+</ul></li>
+</ul></li>
+<li><p><strong><code>SObjectNullValueSubstituter</code>
+(Apex):</strong></p>
+<ul>
+<li><strong>Role:</strong> A utility class to prevent errors caused by
+null values in SObject fields queried for audience evaluation.</li>
+<li><strong>Responsibilities:</strong>
+<ul>
+<li>Replaces null values in specified SObject fields (including related
+object fields) with type-appropriate default values (e.g., empty string,
+0, false) or defined default field values.</li>
+</ul></li>
+</ul></li>
+<li><p><strong>Proprietary Conditional Language &amp; Interpreter
+(<code>audience_rules_interpreter.js</code>):</strong></p>
+<ul>
+<li><strong>Role:</strong> Defines the syntax for audience rules and
+evaluates them.</li>
+<li><strong>Syntax:</strong> Supports comparisons (<code>==</code>,
+<code>!=</code>, <code>~=</code> (endsWith), <code>=~</code>
+(startsWith)), logical operators (<code>&amp;&amp;</code>,
+<code>||</code>), parentheses for grouping, and referencing context
+variables (e.g., <code>User.ProfileId</code>,
+<code>Opportunity.RecordType.DeveloperName</code>,
+<code>Permission == 'SomePermission'</code>). It also supports
+evaluating nested <code>Audience</code> rules.</li>
+<li><strong>Interpreter:</strong> The <code>ConditionInterpreter</code>
+class parses the rule string (tokenization, validation), converts it to
+Reverse Polish Notation (RPN) using the Shunting Yard algorithm, and
+evaluates the RPN stack against the context provided by
+<code>dynLoadManager</code>. The context includes Profile, Role,
+Permissions, Location, Domain, Data (SObject data), and the map of
+Audience rules.</li>
+</ul></li>
+</ul>
+<h3 id="interaction-flow">Interaction Flow</h3>
+<ol type="1">
+<li><strong>Page Load:</strong> <code>dynLoadManager</code>
+initializes.</li>
+<li><strong>Context Fetching:</strong> <code>dynLoadManager</code> calls
+the appropriate method in <code>AudienceContextController</code> (Apex)
+based on the page type (recordId, objectApiName, or pageName) to get
+user/record context, all audience rules, and prioritized page-level
+rules for the current page context.</li>
+<li><strong>Interpreter Initialization:</strong>
+<code>dynLoadManager</code> initializes the
+<code>ConditionInterpreter</code> with the fetched context and
+rules.</li>
+<li><strong>Target Audience Determination:</strong>
+<code>dynLoadManager</code> evaluates the prioritized page-level rules
+to determine the single <code>targetAudience</code> for the current page
+view.</li>
+<li><strong>Loader Registration:</strong> Each
+<code>dynComponentLoader</code> instance initializes and sends a
+<code>DYN_CMP_REGISTER</code> message via <code>lmsPubSubHelper</code>
+containing its details (componentId, pageAudience, compAudience,
+loadingMode).</li>
+<li><strong>Manager Receives Registration:</strong>
+<code>dynLoadManager</code> receives the registration messages via its
+<code>lmsPubSubHelper</code> and stores component details.</li>
+<li><strong>Visibility Evaluation (onload):</strong> For components with
+<code>loadingMode = 'onload'</code>, the <code>dynLoadManager</code>
+immediately checks:
+<ul>
+<li>If the component's <code>pageAudience</code> matches the determined
+<code>targetAudience</code> (or is null/empty).</li>
+<li>If the component's <code>compAudience</code> rule evaluates to true
+using the <code>ConditionInterpreter</code> (or is null/empty).</li>
+</ul></li>
+<li><strong>Show Command (onload):</strong> If both checks pass,
+<code>dynLoadManager</code> sends a <code>DYN_CMP_CMD_SHOW</code>
+message (via LMS) with <code>showNow: true</code> targeted at the
+specific <code>componentId</code>.</li>
+<li><strong>Loader Receives Command:</strong> The target
+<code>dynComponentLoader</code> receives the message and sets its
+internal <code>showNow</code> property to true, causing the wrapped
+component in its slot to render.</li>
+<li><strong>Visibility Evaluation (onvisible):</strong> For components
+with <code>loadingMode = 'onvisible'</code>, the
+<code>dynComponentLoader</code> uses an
+<code>IntersectionObserver</code>. When the component becomes visible in
+the viewport, it sends a <code>DYN_CMP_VISIBLE</code> message.</li>
+<li><strong>Manager Receives Visible:</strong>
+<code>dynLoadManager</code> receives the <code>DYN_CMP_VISIBLE</code>
+message.</li>
+<li><strong>Visibility Evaluation &amp; Show (onvisible):</strong> The
+manager performs the same audience checks as in step 7. If they pass, it
+sends the <code>DYN_CMP_CMD_SHOW</code> message. The loader then renders
+the component and disconnects the observer.</li>
+<li><strong>Experience Builder Interaction:</strong>
+<code>dynLoadManager</code> provides controls to view components
+associated with specific page audiences within the builder, sending
+<code>DYN_CMP_BUILDER_CHG_VISIBILITY</code> messages.</li>
+</ol>
+<h2 id="3-audience-rule-language-grammar">3. Audience Rule Language
+Grammar</h2>
+<p>This section defines the syntax of the proprietary conditional
+language used in the <code>Audience_Rule__c</code> field of the
+<code>LWR_Audience_Rule__mdt</code> metadata type and evaluated by the
+<code>ConditionInterpreter</code>.</p>
+<h3 id="overview">Overview</h3>
+<p>The language allows expressing conditions based on user context,
+record data, and permissions. It supports logical combinations of
+comparisons.</p>
+<h3 id="grammar-ebnf-style">Grammar (EBNF Style)</h3>
+<pre class="ebnf"><code>rule         ::= expression
+
+expression   ::= term { (&#39;&amp;&amp;&#39; | &#39;||&#39;) term }
+
+term         ::= factor | &#39;(&#39; expression &#39;)&#39;
+
+factor       ::= comparison
+
+comparison   ::= variable comparator literal
+               | &#39;Audience&#39; &#39;==&#39; literal        (* Special case for nesting rules *)
+
+variable     ::= identifier { &#39;.&#39; identifier }  (* e.g., User, User.Profile.Name, Opportunity.RecordType.DeveloperName *)
+               | &#39;Permission&#39;                   (* Special context variable for Custom Permissions (Set&lt;String&gt;) *)
+               | &#39;Profile&#39;                      (* Special context variable for User Profile Name (String) *)
+               | &#39;Role&#39;                         (* Special context variable for User Role Name (String) *)
+               | &#39;Location&#39;                     (* Special context variable for User Location (Set&lt;String&gt;) *)
+               | &#39;Domain&#39;                       (* Special context variable for User Domain (String) *)
+               | &#39;Audience&#39;                     (* Special variable for rule nesting *)
+
+identifier   ::= (alpha | &#39;_&#39;) { alpha | digit | &#39;_&#39; } (* Standard identifier rules *)
+
+comparator   ::= &#39;==&#39; | &#39;!=&#39; | &#39;=~&#39; | &#39;~=&#39;       (* equals, not equals, startsWith, endsWith *)
+
+literal      ::= string_literal | boolean_literal (* Number literals not explicitly handled in provided interpreter snippet *)
+
+string_literal ::= &quot;&#39;&quot; (character | escape_sequence)* &quot;&#39;&quot; (* e.g., &#39;PARTNER_SALES_USER&#39;, &#39;true&#39;, &#39;GC&#39; *)
+
+boolean_literal ::= &#39;true&#39; | &#39;false&#39; (* Note: Often represented as strings like &#39;true&#39;/&#39;false&#39; in examples, handled by interpreter *)
+
+escape_sequence ::= &#39;\\\&#39;&#39; (* Only escape sequence explicitly handled in provided tokenizer *)
+
+alpha        ::= &#39;a&#39;..&#39;z&#39; | &#39;A&#39;..&#39;Z&#39;
+digit        ::= &#39;0&#39;..&#39;9&#39;</code></pre>
+<h3 id="key-elements-explained">Key Elements Explained</h3>
+<ul>
+<li><strong><code>rule</code> / <code>expression</code>:</strong> The
+basic structure is a logical expression combining terms with
+<code>&amp;&amp;</code> (AND) or <code>||</code> (OR). Parentheses
+<code>()</code> can be used for grouping and controlling
+precedence.</li>
+<li><strong><code>term</code> / <code>factor</code>:</strong> Represents
+the conditions being evaluated, primarily comparisons.</li>
+<li><strong><code>comparison</code>:</strong> The core unit of
+evaluation. It typically involves comparing a <code>variable</code> to a
+<code>literal</code> using a <code>comparator</code>.
+<ul>
+<li><strong>Special Case <code>Audience</code>:</strong> When the
+variable is <code>Audience</code>, the <code>==</code> operator triggers
+a recursive evaluation of the named audience rule specified by the
+<code>literal</code>.</li>
+<li><strong>Set Variables (<code>Permission</code>,
+<code>Location</code>, etc.):</strong> When the <code>variable</code> is
+a Set of strings (like <code>Permission</code> or
+<code>Location</code>):
+<ul>
+<li><code>==</code>: Checks if the <code>literal</code> string exists as
+an element <em>within</em> the Set.</li>
+<li><code>!=</code>: Checks if the <code>literal</code> string <em>does
+not exist</em> as an element within the Set.</li>
+<li><code>=~</code> (startsWith): Checks if <em>at least one
+element</em> within the Set starts with the <code>literal</code>
+string.</li>
+<li><code>~=</code> (endsWith): Checks if <em>at least one element</em>
+within the Set ends with the <code>literal</code> string.</li>
+</ul></li>
+</ul></li>
+<li><strong><code>variable</code>:</strong> Represents data points from
+the context.
+<ul>
+<li>Starts with a top-level context object like <code>User</code>,
+<code>Account</code>, <code>Opportunity</code>, <code>Campaign</code>,
+<code>Lead</code>, etc., or a special variable like
+<code>Permission</code>, <code>Profile</code>, <code>Role</code>,
+<code>Location</code>, <code>Domain</code>, <code>Audience</code>.</li>
+<li>Uses dot notation (<code>.</code>) to access fields on the context
+objects or their related records (e.g.,
+<code>User.CurrentPersona__c</code>,
+<code>Opportunity.RecordType.DeveloperName</code>). The specific objects
+and fields available depend on the page context and the fields defined
+in the <code>LWR_Audience_Resource__mdt</code> metadata.</li>
+</ul></li>
+<li><strong><code>comparator</code>:</strong> Defines the type of
+comparison:
+<ul>
+<li><code>==</code>: Equal to (handles standard comparison and Set
+membership check).</li>
+<li><code>!=</code>: Not equal to (handles standard comparison and Set
+non-membership check).</li>
+<li><code>=~</code>: Starts with (for strings, or checks if any element
+in a Set starts with).</li>
+<li><code>~=</code>: Ends with (for strings, or checks if any element in
+a Set ends with).</li>
+<li><em>Note:</em> While common, operators like <code>&gt;</code>,
+<code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code> for numerical
+or date comparisons are <em>not</em> explicitly supported by the
+provided <code>audience_rules_interpreter.js</code> code snippet.</li>
+</ul></li>
+<li><strong><code>literal</code>:</strong> Represents fixed values.
+Primarily string literals enclosed in single quotes (e.g.,
+<code>'Active'</code>) or boolean values (which may be represented as
+strings <code>'true'</code>/<code>'false'</code> in rules and converted
+during evaluation).</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul>
+<li><code>User.CurrentPersona__c == 'PARTNER_SALES_USER'</code>
+(Variable <code>User.CurrentPersona__c</code>, Comparator
+<code>==</code>, Literal <code>'PARTNER_SALES_USER'</code>)</li>
+<li><code>Permission == 'ChatterEnabled'</code> (Special Variable
+<code>Permission</code> (Set), Comparator <code>==</code> (membership
+check), Literal <code>'ChatterEnabled'</code>)</li>
+<li><code>Permission != 'ChatterEnabled'</code> (Special Variable
+<code>Permission</code> (Set), Comparator <code>!=</code>
+(non-membership check), Literal <code>'ChatterEnabled'</code>)</li>
+<li><code>Audience == 'Core_Perm_Sets'</code> (Special Variable
+<code>Audience</code>, Comparator <code>==</code>, Literal
+<code>'Core_Perm_Sets'</code>)</li>
+<li><code>Campaign.RecordType.DeveloperName =~ 'ChildCampaign'</code>
+(Variable <code>Campaign.RecordType.DeveloperName</code>, Comparator
+<code>=~</code> (startsWith), Literal <code>'ChildCampaign'</code>)</li>
+<li><code>( Opportunity.AccountSub_Type__c == 'ENT' || Opportunity.AccountSub_Type__c == 'GOV' ) &amp;&amp; User.Region__c == 'GC'</code>
+(Uses parentheses, <code>||</code>, and <code>&amp;&amp;</code>)</li>
+</ul>
+<h2 id="4-pros-of-the-solution">4. Pros of the Solution</h2>
+<ul>
+<li><strong>Reusability:</strong> Leverages standard LWC, LMS, and Apex,
+promoting reusable components and patterns. <code>lmsPubSubHelper</code>
+is a generic utility.</li>
+<li><strong>Flexibility:</strong> The conditional language and use of
+Custom Metadata for rules provide significant flexibility in defining
+complex audience criteria without code changes.</li>
+<li><strong>Decoupling:</strong> LMS effectively decouples the
+<code>dynLoadManager</code> from the <code>dynComponentLoader</code>
+instances.</li>
+<li><strong>Centralized Logic:</strong> The core evaluation logic
+resides within the <code>dynLoadManager</code> and the
+<code>ConditionInterpreter</code>, making it easier to manage and
+update.</li>
+<li><strong>Lazy Loading:</strong> The <code>onvisible</code> loading
+mode provides performance benefits by deferring the rendering (and
+potential data fetching within the wrapped component) until the
+component is actually needed.</li>
+<li><strong>Experience Builder Integration:</strong> Components are
+visible and configurable within the Experience Builder, providing a
+configuration interface for admins/developers.</li>
+</ul>
+<h2 id="5-potential-cons">5. Potential Cons</h2>
+<ul>
+<li><strong>Complexity:</strong> Introduces several custom components
+and a proprietary language, adding complexity compared to a native
+platform feature. Maintenance requires understanding the interaction
+flow and the rule language.</li>
+<li><strong>Performance:</strong>
+<ul>
+<li>Rule evaluation occurs client-side in JavaScript. Very complex rules
+or a large number of components could potentially impact page
+performance, although caching of evaluated rules in
+<code>dynLoadManager</code> mitigates this somewhat.</li>
+<li>Initial context fetching from Apex adds a server round trip. Caching
+(<code>@AuraEnabled(cacheable=true)</code>) helps.</li>
+</ul></li>
+<li><strong>Proprietary Language:</strong> Users need to learn and
+manage the specific syntax and capabilities of the custom conditional
+language. Errors in rule syntax might be harder to debug than standard
+formula fields or code.</li>
+<li><strong>LMS Limits:</strong> High-frequency updates or a very large
+number of components on a single page could potentially approach LMS
+message limits, although this is unlikely in typical scenarios.</li>
+<li><strong>Scalability:</strong> Managing a large number of audience
+rules and priorities through Custom Metadata could become cumbersome
+without proper organization and tooling.</li>
+</ul>
+<h2 id="6-implementation-details">6. Implementation Details</h2>
+<ul>
+<li><p><strong>Audience Association:</strong></p>
+<ul>
+<li>Rules are defined in <code>LWR_Audience_Rule__mdt</code> with an
+<code>Audience_Id__c</code> and the <code>Audience_Rule__c</code> (the
+condition string).</li>
+<li>Page-level priorities are set in
+<code>LWR_Audience_Page_Level_Rule_Priority__mdt</code>, linking an
+<code>Audience_Rule_Id__c</code> to a target (<code>SObject__c</code>
+representing an object API name or a page name) and assigning a numeric
+<code>Audience_Rule_Priority__c</code>. Lower numbers have higher
+priority.</li>
+<li>Fields needed for evaluation are defined in
+<code>LWR_Audience_Resource__mdt</code>, mapping an
+<code>Sobject_API_Name__c</code> to a JSON array of
+<code>Fields_Array__c</code>.</li>
+<li><code>dynComponentLoader</code> instances have <code>@api</code>
+properties <code>pageAudience</code> and <code>compAudience</code>
+(corresponding to <code>Audience_Id__c</code> values) configured in the
+Experience Builder.</li>
+</ul></li>
+<li><p><strong>LMS Message Structure
+(<code>dynLoaderMessageHelper.js</code>):</strong></p>
+<ul>
+<li>Uses a <code>topic</code> field to categorize messages (e.g.,
+<code>DYN_CMP_REGISTER</code>, <code>DYN_CMP_CMD_SHOW</code>).</li>
+<li>Includes a <code>payload</code> object containing relevant data:
+<ul>
+<li><code>DYN_CMP_REGISTER</code>:
+<code>{ cmpId, pageAudience, compAudience, loadMode, loadingOrder }</code></li>
+<li><code>DYN_CMP_CMD_SHOW</code>:
+<code>{ targetCmp: string | string[], showNow: boolean }</code></li>
+<li><code>DYN_CMP_VISIBLE</code>:
+<code>{ cmpId, pageAudience, compAudience, loadMode, loadingOrder }</code></li>
+<li><code>DYN_CMP_IS_AVAILABLE</code>:
+<code>{ targetCmp: string | string[] }</code> (Manager announces
+readiness)</li>
+<li><code>DYN_CMP_BUILDER_CHG_VISIBILITY</code>:
+<code>{ targetCmp: string | string[], showNow: boolean }</code> (For
+Builder UI)</li>
+<li><code>DYN_CMP_PAGE_AUDIENCE_CHANGED</code>:
+<code>{ cmpId, pageAudience }</code></li>
+</ul></li>
+</ul></li>
+<li><p><strong>Interpreter Logic
+(<code>audience_rules_interpreter.js</code>):</strong></p>
+<ul>
+<li><code>tokenize</code>: Breaks the rule string into tokens (literals,
+variables, operators, parentheses). Handles string literals and basic
+escape sequences.</li>
+<li><code>validateTokens</code>: Performs basic syntax checks (e.g.,
+parenthesis matching, operator placement).</li>
+<li><code>categorizeToken</code>: Identifies if a token is a literal, a
+context variable (like <code>Profile</code>, <code>Role</code>,
+<code>Permission</code>, <code>Location</code>, <code>Domain</code>), an
+SObject field access
+(<code>Data.&lt;SObjectName&gt;.&lt;FieldName&gt;</code>), or an
+<code>Audience</code> reference. Validates against the provided
+context.</li>
+<li><code>shuntingYard</code>: Converts infix notation tokens to RPN
+(postfix) using Dijkstra's Shunting Yard algorithm, respecting operator
+precedence (<code>==</code>, <code>!=</code>, <code>=~</code>,
+<code>~=</code> &gt; <code>&amp;&amp;</code> &gt; <code>||</code>).</li>
+<li><code>evaluateRPN</code>: Evaluates the RPN expression using a
+stack.</li>
+<li><code>resolveValue</code>: Retrieves the actual value for variables
+from the <code>context</code> map provided by
+<code>dynLoadManager</code>.</li>
+<li><code>compareValues</code>: Handles the actual comparison logic for
+<code>==</code>, <code>!=</code>, <code>=~</code>, <code>~=</code>. It
+specifically handles comparisons against <code>Set</code> values (like
+Permissions, Location) and nested <code>Audience</code> evaluations
+(recursively calls <code>evaluate</code> for
+<code>Audience == 'SomeOtherAudience'</code>).</li>
+<li><code>evaluateOperation</code>: Performs the logical
+(<code>&amp;&amp;</code>, <code>||</code>) or comparison operations
+based on the operator token.</li>
+</ul></li>
+<li><p><strong><code>dynComponentLoader</code> Processing:</strong></p>
+<ul>
+<li><code>connectedCallback</code>: (Implicitly initializes registration
+process via <code>renderedCallback</code>).</li>
+<li><code>renderedCallback</code>: Ensures registration message
+(<code>DYN_CMP_REGISTER</code>) is sent via LMS. Sets up
+<code>IntersectionObserver</code> if <code>loadingMode</code> is
+<code>onvisible</code>.</li>
+<li><code>handleMessage</code>: The core message handler. Filters
+messages based on <code>topic</code> and whether the
+<code>targetCmp</code> in the payload matches its own
+<code>componentId</code> or is <code>"*"</code>. Updates its
+<code>showNow</code> state based on <code>DYN_CMP_CMD_SHOW</code>.
+Handles builder visibility toggles via
+<code>DYN_CMP_BUILDER_CHG_VISIBILITY</code>. Responds to
+<code>DYN_CMP_IS_AVAILABLE</code> by re-registering.</li>
+<li><code>onObserve</code>: Callback for
+<code>IntersectionObserver</code>. Sends <code>DYN_CMP_VISIBLE</code>
+message when the component enters the viewport.</li>
+<li><code>disconnectedCallback</code>: Attempts to clean up the
+observer, though a comment notes potential issues with this firing
+reliably in the Experience Builder.</li>
+</ul></li>
+<li><p><strong>Design Patterns:</strong></p>
+<ul>
+<li><strong>Publish/Subscribe:</strong> Clearly implemented using
+Salesforce LMS for communication between <code>dynLoadManager</code> and
+<code>dynComponentLoader</code> instances.</li>
+<li><strong>Factory:</strong> <code>dynLoaderMessageHelper</code> acts
+as a Message Factory, providing functions to create consistently
+structured messages.</li>
+<li><strong>Interpreter:</strong> The <code>ConditionInterpreter</code>
+class implements the Interpreter pattern to process the proprietary
+conditional language.</li>
+<li><strong>Strategy/Provider:</strong> <code>AudienceMetadata</code>
+uses an interface (<code>AudienceMetadataProvider</code>) and a concrete
+implementation (<code>RealAudienceMetadataProvider</code>) to abstract
+the source of metadata (Strategy or Provider pattern).</li>
+<li><strong>Facade (potentially):</strong>
+<code>AudienceContextController</code> could be seen as a Facade,
+simplifying the process of gathering diverse context information (user,
+record, metadata) for the LWC.</li>
+</ul></li>
+</ul>
+<h2 id="7-configuration-guide-experience-builder">7. Configuration Guide
+(Experience Builder)</h2>
+<p>This section outlines the steps to configure the dynamic visibility
+solution, starting with the necessary metadata setup and followed by the
+Experience Builder configuration.</p>
+<p><strong>Metadata Setup Steps (Pre-Configuration):</strong></p>
+<p>Before configuring components in the Experience Builder, the
+underlying audience rules and supporting metadata must be defined in
+Salesforce Setup:</p>
+<ol type="1">
+<li><p><strong>Define Audiences and Personas:</strong></p>
+<ul>
+<li>Analyze the requirements and identify the different user personas or
+conditions that will determine component visibility.</li>
+<li>Decide which sets of components should be visible together on a page
+variation (Page Audiences) and which individual components have
+additional visibility rules (Component Audiences).</li>
+</ul></li>
+<li><p><strong>Create Audience Rules:</strong></p>
+<ul>
+<li>For each identified Page Audience and Component Audience, create a
+corresponding record in the <code>LWR_Audience_Rule__mdt</code> Custom
+Metadata Type.</li>
+<li>Define a unique <code>Audience_Id__c</code> (e.g.,
+<code>Partner_Sales_Users</code>,
+<code>High_Value_Opportunities_View</code>). This ID will be used later
+in the Experience Builder configuration.</li>
+<li>Write the conditional expression in the
+<code>Audience_Rule__c</code> field using the proprietary language
+syntax. Examples:
+<ul>
+<li><code>User.Profile.Name == 'Partner Community User'</code></li>
+<li><code>Permission == 'Can_Edit_Orders'</code></li>
+<li><code>Opportunity.Amount &gt; 100000 &amp;&amp; Opportunity.IsClosed == false</code></li>
+<li><code>Audience == 'Region_NorthAmerica'</code> (for nesting
+rules)</li>
+</ul></li>
+</ul></li>
+<li><p><strong>Prioritize Page-Level Audiences:</strong></p>
+<ul>
+<li>For each page context (identified by SObject API Name for
+object/record pages, or a unique Page Name for named pages) where page
+variations are needed, define the priority of applicable Page Audience
+rules.</li>
+<li>Create records in the
+<code>LWR_Audience_Page_Level_Rule_Priority__mdt</code> Custom Metadata
+Type.</li>
+<li>Set the <code>SObject__c</code> field to the relevant SObject API
+Name or Page Name.</li>
+<li>Set the <code>Audience_Rule_Id__c</code> to the ID of a Page
+Audience rule defined in step 2.</li>
+<li>Assign an <code>Audience_Rule_Priority__c</code> number (lower
+numbers have higher priority). The first rule in the priority order that
+evaluates to true for a user will determine the active Page Audience for
+that page view.</li>
+</ul></li>
+<li><p><strong>Define Required Data Resources:</strong></p>
+<ul>
+<li>Analyze the fields used across all your Audience Rules (from step
+2).</li>
+<li>For each SObject type whose fields are referenced in the rules,
+create a record in the <code>LWR_Audience_Resource__mdt</code> Custom
+Metadata Type.</li>
+<li>Set <code>Sobject_API_Name__c</code> to the relevant object (e.g.,
+<code>User</code>, <code>Opportunity</code>, <code>Account</code>).</li>
+<li>In the <code>Fields_Array__c</code>, provide a JSON string array
+containing all the field API names needed for evaluation <em>from that
+specific SObject</em>, including relationship fields (e.g.,
+<code>["ProfileId", "Country", "UserRoleId"]</code> for User,
+<code>["Amount", "IsClosed", "RecordType.DeveloperName", "Account.Type"]</code>
+for Opportunity).</li>
+<li><strong>Hint:</strong> For Record Pages (where <code>recordId</code>
+is available), you need to define resources for the record's SObject
+type <em>in addition</em> to the 'User' object. For other page types
+(Object Pages, Named Pages), typically only resources for the 'User'
+SObject are needed unless rules specifically reference other global
+context data.</li>
+</ul></li>
+</ol>
+<p><strong>Experience Builder Configuration Steps:</strong></p>
+<p>Once the metadata setup is complete and all components (LWCs, Apex,
+LMS Channel) are deployed, you can configure the components on the LWR
+page:</p>
+<p><img
+src="./DYN_LOADER_SCREENSHOTS/001_ExpBuilder_with_Dyn_VariationComponents_EmptyPage.png"
+title="Dyn Load Manager and Dyn Component Loader Components"
+alt="Experience Builder showing Dyn Load Manager and Loader components available" />
+<em>Figure 1: Dyn Load Manager and Dyn Component Loader components
+available in Experience Builder.</em></p>
+<ol type="1">
+<li><strong>Add <code>dynLoadManager</code> to the Page:</strong>
+<ul>
+<li>Open the target LWR page in Experience Builder.</li>
+<li>Drag the <code>dynLoadManager</code> component onto the page
+canvas.</li>
+<li><strong>Note:</strong> Only <em>one</em> <code>dynLoadManager</code>
+per page.</li>
+</ul></li>
+</ol>
+<p><img
+src="./DYN_LOADER_SCREENSHOTS/002_ExpBuilder_With_DynLoadManager_Only.png"
+title="DynLoadManager Properties"
+alt="DynLoadManager component properties panel in Experience Builder" />
+<em>Figure 2: DynLoadManager component and its properties in Experience
+Builder.</em></p>
+<ol start="2" type="1">
+<li><strong>Wrap Business Components with
+<code>dynComponentLoader</code>:</strong>
+<ul>
+<li>Drag <code>dynComponentLoader</code> onto the page where the
+conditional component should appear.</li>
+<li>Drag the actual Business Component <em>inside</em> the
+<code>dynComponentLoader</code>.</li>
+</ul></li>
+</ol>
+<p><img
+src="./DYN_LOADER_SCREENSHOTS/003_ExpBuilder_DyComponentLoader_with_props.png"
+title="Dyn Component Loader Properties"
+alt="Dyn Component Loader component properties panel in Experience Builder" />
+<em>Figure 3: Dyn Component Loader component (without internal business
+component) and its properties in Experience Builder.</em></p>
+<p><img
+src="./DYN_LOADER_SCREENSHOTS/004_ExpBuilder_DynComponentLoader_With_LWR.png"
+title="Loader Containing LWR Tabs"
+alt="Dyn Component Loader with LWR Tab business component inside in Experience Builder" />
+<em>Figure 4: Dyn Component Loader component containing an internal LWR
+Tabs business component, with its properties shown.</em></p>
+<ol start="3" type="1">
+<li><p><strong>Configure <code>dynComponentLoader</code>
+Properties:</strong></p>
+<ul>
+<li>Select the <code>dynComponentLoader</code>.</li>
+<li>Configure properties:
+<ul>
+<li><strong><code>Title</code> / <code>Description</code> (Optional,
+Builder Only):</strong> For identification.</li>
+<li><strong><code>Loading Mode</code>:</strong> <code>onload</code> or
+<code>onvisible</code>.</li>
+<li><strong><code>Loading Order</code> (Optional):</strong> Number for
+ordering components with the same load mode.</li>
+<li><strong><code>Page Audience</code>:</strong> Enter the
+<code>Audience_Id__c</code> (from step 2 of Metadata Setup) defining the
+page variation this belongs to. Leave blank or use "--NONE--" if
+applicable to all page variations.</li>
+<li><strong><code>Component Audience</code>:</strong> Enter the
+<code>Audience_Id__c</code> (from step 2 of Metadata Setup) defining
+specific conditions for this component. Leave blank or use "--NONE--" if
+always visible within its <code>Page Audience</code>.</li>
+</ul></li>
+</ul></li>
+<li><p><strong>Repeat for All Dynamic Components:</strong> Repeat steps
+2 and 3 for every component requiring conditional visibility.</p></li>
+<li><p><strong>Preview and Test:</strong></p>
+<ul>
+<li>Use Experience Builder preview.</li>
+<li>Log in as different users meeting various criteria.</li>
+</ul></li>
+</ol>
+<p>By following these metadata and Experience Builder steps, you
+configure the dynamic behavior based on page and component
+audiences.</p>
+<h2 id="8-diagrams">8. Diagrams</h2>
+<h3 id="custom-metadata-structure-diagram">Custom Metadata Structure
+Diagram</h3>
+<p>This diagram shows the Custom Metadata Types involved and their
+relationships.</p>
+
+<p><img
+  src="./DYN_LOADER_SCREENSHOTS/Custom Metadata.drawio.png"
+  title="Custom Metadata Types"
+  alt="Custom Metadata Types" />
+</p>  
+<!-- <pre class="mermaid"><code>erDiagram
+    LWR_Audience_Rule__mdt {
+        String Audience_Id__c PK &quot;Unique ID for the rule (e.g., &#39;Admin_Users&#39;, &#39;High_Value_Opp&#39;).&quot;
+        String Audience_Rule__c &quot;The conditional expression string to be evaluated by the interpreter.&quot;
+    }
+
+    LWR_Audience_Page_Level_Rule_Priority__mdt {
+        String SObject__c PK &quot;Target Context: SObject API Name or unique Page Name this priority applies to.&quot;
+        String Audience_Rule_Id__c FK &quot;Reference to the LWR_Audience_Rule__mdt this priority applies to.&quot;
+        Integer Audience_Rule_Priority__c &quot;Execution order for page-level rules within the same context (lower number = higher priority).&quot;
+    }
+
+    LWR_Audience_Resource__mdt {
+        String Sobject_API_Name__c PK &quot;SObject type (e.g., &#39;User&#39;, &#39;Opportunity&#39;) whose fields are needed for evaluation in a specific context.&quot;
+        String Fields_Array__c &quot;JSON array of field API names (including relationships like &#39;RecordType.DeveloperName&#39;) to query for the specified SObject.&quot;
+    }
+
+    LWR_Audience_Page_Level_Rule_Priority__mdt }|--|| LWR_Audience_Rule__mdt : &quot;defines priority for&quot;
+
+    %% Conceptual relationships (how they are used together by the code)
+    LWR_Audience_Rule__mdt ||..o{ LWR_Audience_Resource__mdt : &quot;evaluation needs fields listed in&quot;
+    LWR_Audience_Page_Level_Rule_Priority__mdt ||..o{ LWR_Audience_Resource__mdt : &quot;context implies fields needed from&quot;</code></pre> -->
+<p><strong>Key aspects of the Custom Metadata relationships (PK=Primary
+Key, FK=Foreign Key; no explicit referential integrity is
+used)</strong></p>
+<ol type="1">
+<li><code>LWR_Audience_Rule__mdt</code>: This is the core definition of
+an audience rule. It contains a unique identifier
+(<code>Audience_Id__c</code>) used in the LWC configuration and the
+actual rule expression (<code>Audience_Rule__c</code>) that the
+ConditionInterpreter evaluates.</li>
+<li><code>LWR_Audience_Page_Level_Rule_Priority__mdt</code>: This Custom
+metadata determines which <code>LWR_Audience_Rule__mdt</code> should be
+considered the target audience for a specific page context (defined by
+SObject__c, which holds either an SObject API name or a page name). It
+links directly to an <code>LWR_Audience_Rule__mdt</code> via
+<code>Audience_Rule_Id__c</code> and sets its priority. Multiple rules
+can be defined for the same context, but the one with the lowest
+<code>Audience_Rule_Priority__c</code> that evaluates to true becomes
+the active page audience.</li>
+<li><code>LWR_Audience_Resource__mdt</code>: This Custom metadata
+informs the <code>AudienceContextController</code> which SObject fields
+are required for evaluating the rules associated with a given
+Sobject_API_Name__c (which could be 'User' or a record's object type).
+This ensures the necessary data is queried and made available in the
+context map for the <code>ConditionInterpreter</code>. The relationship
+to <code>LWR_Audience_Rule__mdt</code> is conceptual: the fields listed
+here are expected to be used within the <code>Audience_Rule__c</code>
+strings associated with that context.</li>
+</ol>
+<h3 id="class-diagram-simplified-lwc--core-logic">Class Diagram
+(Simplified LWC &amp; Core Logic)</h3>
+
+<p><img
+  src="./DYN_LOADER_SCREENSHOTS/ClassDiagram.drawio.png"
+  title="Class Diagram"
+  alt="Class Diagram" />
+</p>  
+
+<!-- <pre class="mermaid"><code>classDiagram
+    class dynLoadManager {
+        +recordId: String
+        +objectApiName: String
+        +settings: String
+        +componentId: String
+        +isInBuilder: Boolean
+        -componentsById: Map~String, Object~
+        -componentsByPageAudience: Map~String, Object[]~
+        -audienceContextAndRules: Object
+        -interpreter: ConditionInterpreter
+        -targetAudience: String
+        +getPageReferenceParameters()
+        +initContextFromServer(data)
+        +findPageAudience()
+        +checkAudience(msg) : Object
+        +checkComponentAudiences(cmpIds) : String[]
+        +registerComponent(msg)
+        +handleMessage(event)
+        +sendMessage(msg) : Boolean
+    }
+
+    class dynComponentLoader {
+        +title: String
+        +loadingMode: String
+        +loadingOrder: Integer
+        +pageAudience: String
+        +compAudience: String
+        +componentId: String
+        +showNow: Boolean
+        +isInBuilder: Boolean
+        -observer: IntersectionObserver
+        +renderedCallback()
+        +disconnectedCallback()
+        +handleMessage(event)
+        +sendMessage(msg) : Boolean
+        +onObserve(entries, observer)
+    }
+
+    class lmsPubSubHelper {
+        +parentId: String
+        -subscription: Object
+        -messageContext: MessageContext
+        +connectedCallback()
+        +disconnectedCallback()
+        +subscribeToMessageChannel()
+        +unsubscribeFromMessageChannel()
+        +handleMessage(message)
+        +sendMessage(message)
+    }
+
+    class dynLoaderMessageHelper {
+        &lt;&lt;JavaScript Module&gt;&gt;
+        +TOPICS: Object
+        +MESSAGE_FACTORY: Object
+        +MESSAGE_FACTORY.DYN_CMP_REGISTER(loaderInstance) : Object
+        +MESSAGE_FACTORY.DYN_CMP_CMD_SHOW(target, showNow) : Object
+        +MESSAGE_FACTORY.DYN_CMP_VISIBLE(loaderInstance) : Object
+        +MESSAGE_FACTORY.DYN_CMP_IS_AVAILABLE(target) : Object
+        +MESSAGE_FACTORY.DYN_CMP_BUILDER_CHG_VISIBILITY(target, showHide) : Object
+        +MESSAGE_FACTORY.DYN_CMP_PAGE_AUDIENCE_CHANGED(loaderInstance) : Object
+    }
+
+    class ConditionInterpreter {
+        &lt;&lt;JavaScript Class&gt;&gt;
+        -context: Object
+        +constructor(context)
+        +setContext(context)
+        +evaluate(conditionString) : Boolean
+        -tokenize(input) : Object[]
+        -validateTokens(tokens)
+        -categorizeToken(token) : Object
+        -shuntingYard(tokens) : Object[]
+        -evaluateRPN(rpn) : Object
+        -resolveValue(token) : Object
+        -compareValues(variable, literal, operator) : Boolean
+        -evaluateOperation(operator, left, right) : Object
+    }
+
+    dynLoadManager o-- ConditionInterpreter : uses
+    dynLoadManager o-- lmsPubSubHelper : contains
+    dynComponentLoader o-- lmsPubSubHelper : contains
+    dynLoadManager ..&gt; dynLoaderMessageHelper : uses
+    dynComponentLoader ..&gt; dynLoaderMessageHelper : uses
+    dynLoadManager --&gt; AudienceContextController : calls &gt;
+    AudienceContextController --&gt; AudienceMetadata : calls &gt;
+    AudienceContextController --&gt; SObjectNullValueSubstituter : uses &gt;
+
+    note for dynLoadManager &quot;Manages multiple dynComponentLoader instances&quot;
+    note for dynComponentLoader &quot;Wraps a business component&quot;
+    note for lmsPubSubHelper &quot;Handles LMS subscribe/publish&quot;</code></pre> -->
+
+<p>Note: Apex classes (<code>AudienceContextController</code>,
+<code>AudienceMetadata</code>, <code>SObjectNullValueSubstituter</code>)
+are shown conceptually in relation to <code>dynLoadManager</code>.</p>
+<h3 id="sequence-diagram-initial-page-load-onvisible-component">Sequence
+Diagram: Initial Page Load (onload component)</h3>
+
+<p><img
+  src="./DYN_LOADER_SCREENSHOTS/InitialPageLoad_OnloadComponent.drawio.png"
+  title="Initial Page Load (onload component)"
+  alt="Initial Page Load (onload component)" />
+</p>  
+
+<!-- <pre class="mermaid"><code>sequenceDiagram
+    participant User
+    participant Browser
+    participant LWRPage
+    participant dynLoadManager_LWC as dynLoadManager
+    participant Apex_Controller as AudienceContextController
+    participant Interpreter as ConditionInterpreter
+    participant LMS
+    participant dynComponentLoader_LWC as dynComponentLoader (onload)
+    participant Business_LWC as Wrapped Business Component
+
+    User-&gt;&gt;Browser: Navigates to LWR Page
+    Browser-&gt;&gt;LWRPage: Load Page Components
+    LWRPage-&gt;&gt;dynLoadManager_LWC: Initialize
+    dynLoadManager_LWC-&gt;&gt;Apex_Controller: getContextAndRulesBy...(pageContext)
+    Apex_Controller--&gt;&gt;dynLoadManager_LWC: Return context &amp; rules
+    dynLoadManager_LWC-&gt;&gt;Interpreter: new ConditionInterpreter(context)
+    dynLoadManager_LWC-&gt;&gt;dynLoadManager_LWC: Evaluate prioritized rules to find targetAudience
+    dynLoadManager_LWC-&gt;&gt;LMS: Publish DYN_CMP_IS_AVAILABLE (target=&quot;*&quot;)
+
+    LWRPage-&gt;&gt;dynComponentLoader_LWC: Initialize
+    dynComponentLoader_LWC-&gt;&gt;LMS: Publish DYN_CMP_REGISTER (cmpId, audiences, mode=&#39;onload&#39;)
+
+    LMS--&gt;&gt;dynLoadManager_LWC: Deliver DYN_CMP_REGISTER
+    dynLoadManager_LWC-&gt;&gt;dynLoadManager_LWC: Store component info
+    dynLoadManager_LWC-&gt;&gt;dynLoadManager_LWC: checkAudience(registeredComponent)
+    alt Audience Check Passes
+        dynLoadManager_LWC-&gt;&gt;Interpreter: evaluate(componentRule)
+        Interpreter--&gt;&gt;dynLoadManager_LWC: true
+        dynLoadManager_LWC-&gt;&gt;LMS: Publish DYN_CMP_CMD_SHOW (target=cmpId, showNow=true)
+        LMS--&gt;&gt;dynComponentLoader_LWC: Deliver DYN_CMP_CMD_SHOW
+        dynComponentLoader_LWC-&gt;&gt;dynComponentLoader_LWC: Set showNow = true
+        dynComponentLoader_LWC-&gt;&gt;Business_LWC: Render Component
+    else Audience Check Fails
+        dynLoadManager_LWC-&gt;&gt;Interpreter: evaluate(componentRule)
+        Interpreter--&gt;&gt;dynLoadManager_LWC: false
+        %% No SHOW command sent
+    end</code></pre> -->
+<h3
+id="sequence-diagram-initial-page-load-onvisible-component-1">Sequence
+Diagram: Initial Page Load (onvisible component)</h3>
+
+<p><img
+  src="./DYN_LOADER_SCREENSHOTS/InitialPageLoadOnvisibleComponent.drawio.png"
+  title="Initial Page Load (onvisible component)"
+  alt="Initial Page Load (onvisible component)" />
+</p>
+
+<!-- <pre class="mermaid"><code>sequenceDiagram
+    participant User
+    participant Browser
+    participant LWRPage
+    participant dynLoadManager_LWC as dynLoadManager
+    participant Apex_Controller as AudienceContextController
+    participant Interpreter as ConditionInterpreter
+    participant LMS
+    participant dynComponentLoader_LWC as dynComponentLoader (onvisible)
+    participant IntersectionObserver
+    participant Business_LWC as Wrapped Business Component
+
+    %% Initial steps same as onload (Context Fetch, Target Audience, IS_AVAILABLE)
+    User-&gt;&gt;Browser: Navigates to LWR Page
+    Browser-&gt;&gt;LWRPage: Load Page Components
+    LWRPage-&gt;&gt;dynLoadManager_LWC: Initialize
+    dynLoadManager_LWC-&gt;&gt;Apex_Controller: getContextAndRulesBy...(pageContext)
+    Apex_Controller--&gt;&gt;dynLoadManager_LWC: Return context &amp; rules
+    dynLoadManager_LWC-&gt;&gt;Interpreter: new ConditionInterpreter(context)
+    dynLoadManager_LWC-&gt;&gt;dynLoadManager_LWC: Evaluate prioritized rules to find targetAudience
+    dynLoadManager_LWC-&gt;&gt;LMS: Publish DYN_CMP_IS_AVAILABLE (target=&quot;*&quot;)
+
+    LWRPage-&gt;&gt;dynComponentLoader_LWC: Initialize (mode=&#39;onvisible&#39;)
+    dynComponentLoader_LWC-&gt;&gt;dynComponentLoader_LWC: Set showNow = false (initially hidden)
+    dynComponentLoader_LWC-&gt;&gt;IntersectionObserver: new IntersectionObserver(callback)
+    dynComponentLoader_LWC-&gt;&gt;IntersectionObserver: observe(element)
+    dynComponentLoader_LWC-&gt;&gt;LMS: Publish DYN_CMP_REGISTER (cmpId, audiences, mode=&#39;onvisible&#39;)
+
+    LMS--&gt;&gt;dynLoadManager_LWC: Deliver DYN_CMP_REGISTER
+    dynLoadManager_LWC-&gt;&gt;dynLoadManager_LWC: Store component info (but don&#39;t evaluate yet)
+
+    User-&gt;&gt;Browser: Scrolls page
+    Browser-&gt;&gt;IntersectionObserver: Component enters viewport
+    IntersectionObserver-&gt;&gt;dynComponentLoader_LWC: Execute callback (onObserve)
+    dynComponentLoader_LWC-&gt;&gt;LMS: Publish DYN_CMP_VISIBLE (cmpId, audiences, mode=&#39;onvisible&#39;)
+
+    LMS--&gt;&gt;dynLoadManager_LWC: Deliver DYN_CMP_VISIBLE
+    dynLoadManager_LWC-&gt;&gt;dynLoadManager_LWC: checkAudience(visibleComponent)
+    alt Audience Check Passes
+        dynLoadManager_LWC-&gt;&gt;Interpreter: evaluate(componentRule)
+        Interpreter--&gt;&gt;dynLoadManager_LWC: true
+        dynLoadManager_LWC-&gt;&gt;LMS: Publish DYN_CMP_CMD_SHOW (target=cmpId, showNow=true)
+        LMS--&gt;&gt;dynComponentLoader_LWC: Deliver DYN_CMP_CMD_SHOW
+        dynComponentLoader_LWC-&gt;&gt;dynComponentLoader_LWC: Set showNow = true
+        dynComponentLoader_LWC-&gt;&gt;IntersectionObserver: disconnect()
+        dynComponentLoader_LWC-&gt;&gt;Business_LWC: Render Component
+    else Audience Check Fails
+        dynLoadManager_LWC-&gt;&gt;Interpreter: evaluate(componentRule)
+        Interpreter--&gt;&gt;dynLoadManager_LWC: false
+        %% No SHOW command sent, component remains hidden
+    end</code></pre> -->
+<h3
+id="sequence-diagram-context-change-simplified--eg-record-update-triggering-refreshre-eval">Sequence
+Diagram: Context Change (Simplified -e.g. Record Update triggering
+refresh/re-eval)</h3>
+
+<p><img
+  src="./DYN_LOADER_SCREENSHOTS/ContextChangeSequenceDiagram.drawio.png"
+  title="Context Changed Sequence Diagram"
+  alt="Context Changed Sequence Diagram" />
+</p>
+
+<!-- <pre class="mermaid"><code>sequenceDiagram
+    participant User
+    participant Browser Action
+    participant dynLoadManager_LWC as dynLoadManager
+    participant Apex_Controller as AudienceContextController
+    participant Interpreter as ConditionInterpreter
+    participant LMS
+
+    User-&gt;&gt;Browser Action: Performs action causing context change (e.g., saves record, navigates)
+    Browser Action-&gt;&gt;dynLoadManager_LWC: Trigger re-initialization or context refresh (e.g., via @wire refresh or full page reload)
+
+    %% Assuming re-initialization flow for simplicity
+    dynLoadManager_LWC-&gt;&gt;dynLoadManager_LWC: Clear existing checked audiences/target
+    dynLoadManager_LWC-&gt;&gt;LMS: Publish DYN_CMP_CMD_SHOW (target=&quot;*&quot;, showNow=false) // Hide everything initially
+    dynLoadManager_LWC-&gt;&gt;Apex_Controller: getContextAndRulesBy...(NEW_pageContext)
+    Apex_Controller--&gt;&gt;dynLoadManager_LWC: Return NEW context &amp; rules
+    dynLoadManager_LWC-&gt;&gt;Interpreter: setContext(NEW_context)
+    dynLoadManager_LWC-&gt;&gt;dynLoadManager_LWC: Evaluate prioritized rules to find NEW targetAudience
+    dynLoadManager_LWC-&gt;&gt;LMS: Publish DYN_CMP_IS_AVAILABLE (target=&quot;*&quot;) // Ask components to re-register if needed
+
+    %% Components re-register or manager processes existing registry
+    loop For Each Registered Component
+        dynLoadManager_LWC-&gt;&gt;dynLoadManager_LWC: checkAudience(component) with NEW context/target
+        alt Audience Check Passes (Now)
+             dynLoadManager_LWC-&gt;&gt;Interpreter: evaluate(componentRule) with NEW context
+             Interpreter--&gt;&gt;dynLoadManager_LWC: true
+             dynLoadManager_LWC-&gt;&gt;LMS: Publish DYN_CMP_CMD_SHOW (target=cmpId, showNow=true)
+        else Audience Check Fails (Now)
+             dynLoadManager_LWC-&gt;&gt;Interpreter: evaluate(componentRule) with NEW context
+             Interpreter--&gt;&gt;dynLoadManager_LWC: false
+             %% Component remains hidden (already hidden by initial broadcast)
+        end
+    end</code></pre> -->
+</body>
+</html>

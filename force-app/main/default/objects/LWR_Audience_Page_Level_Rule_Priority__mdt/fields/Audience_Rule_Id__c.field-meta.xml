@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Audience_Rule_Id__c</fullName>
+    <caseSensitive>true</caseSensitive>
+    <description>Audience rule unique identifier. Page level</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Audience rule unique identifier. Page level</inlineHelpText>
+    <label>Audience Rule Id</label>
+    <length>255</length>
+    <required>true</required>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

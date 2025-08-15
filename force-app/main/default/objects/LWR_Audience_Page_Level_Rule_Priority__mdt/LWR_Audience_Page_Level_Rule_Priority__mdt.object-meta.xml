@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Custom metadata is used to manage the priority of hierarchical dependency rules for grouping components at the page level. These rules can apply to various objects and are stored in a separate custom metadata object called LWR Audience rules. Each rule is assigned a priority number manually, with more complex and restrictive rules having higher priority (indicated by smaller numbers).
+The purpose of this custom metadata is to ensure that the code processes rules in the correct order. Starting from the highest priority rule, the code checks if at least one component satisfies the rule. If a match is found, the process stops; otherwise, it continues to the next rule. This approach ensures that the most specific and relevant components are selected first.</description>
+    <label>LWR Audience Page Level Rule Priority</label>
+    <pluralLabel>LWR Audience Page Level Rule Priorities</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

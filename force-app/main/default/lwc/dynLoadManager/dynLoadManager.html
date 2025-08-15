@@ -1,0 +1,35 @@
+<template>
+  
+  <template if:true={isAura}>
+    <div style="color: red;">Component is only for LWR sites, not Aura</div>
+  </template>
+
+  <template if:false={isAura}>
+
+    <template if:true={needShowInternalsStatus}>
+      <div class="info-panel slds-text-body_small">
+        <div><b>Component:</b> {componentId}</div>
+        <div><b>Number of Registered Components:</b> {numberOfRegisteredComponents};</div>
+        <div><b>Number Of Registred Page Variations:</b> {numberOfRegisteredPages};</div>
+        <div><b>Total Messages sent:</b> {exbTotalMessagesSent};</div>
+        <div><b>Total Messages recieved:</b> {exbTotalMessagesRecieved};</div>
+        <div><b>Target Page audience:</b> {targetAudience}</div>
+        <div>
+          <b>Filter by Page Audience:</b>
+          <lightning-combobox
+            name="filterByPageAudience"
+            label=""
+            value={selectedPageAudience}
+            options={registeredPageAudiences}
+            onchange={handlePageAudiencesViewChange} 
+            variant="label-hidden"
+          ></lightning-combobox> 
+        </div>
+      </div>
+    </template>
+
+    <c-lms-pub-sub-helper parent-id={componentId} onmessagereceived={handleMessage}></c-lms-pub-sub-helper>
+
+  </template>
+
+</template>

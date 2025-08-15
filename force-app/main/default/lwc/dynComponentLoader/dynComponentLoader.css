@@ -1,0 +1,50 @@
+.container-designer-view {
+  border-width: 5px;
+  border-style: solid;
+  min-height: 100px;
+  padding-bottom: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.inactive-container-designer-view {
+  border-color: darkgray;
+}
+
+.active-container-designer-view {
+  border-color: greenyellow;
+}
+
+.info-helper {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 10px;
+  background-color:honeydew;
+  margin-bottom: 1em;
+  border-top: 1px solid gray;
+  border-left: 1px solid gray;
+  border-right: 1px solid gray;
+  overflow-x: auto;
+}
+
+.grid-item {
+  overflow: hidden;
+}
+
+.grid-item-inside-builder {
+  padding-top: 1.5em;
+  padding-bottom: 1.5em;
+}
+
+.builder-spacing {
+  height: 0.5em;
+  background-color: honeydew;
+  margin-top: 0.5em;
+  border-left: 1px solid gray;
+  border-right: 1px solid gray;
+  border-bottom: 1px solid gray;
+  margin-bottom: 0.5em;
+}
+
+.hide-from-builder {
+    display: none;
+}
