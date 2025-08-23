@@ -1,0 +1,123 @@
+/* --- Base Styles --- */
+.audience-selector-wrapper {
+    position: relative; /* Needed for absolute positioning of dropdown */
+}
+
+/* --- Input Field & Icon Fixes --- */
+/* FIX Issue #1: Prevent icon overlapping text */
+/* Target the input specifically within the search icon container */
+.audience-selector-wrapper .slds-input-has-icon_right .slds-input {
+    /* Add padding to the right to make space for the icon */
+    padding-right: 2.5rem; /* Adjust as needed based on icon size */
+}
+
+/* Ensure the icon container itself is positioned correctly */
+.audience-selector-wrapper .slds-input-has-icon .slds-input__icon-container {
+    /* Standard SLDS positioning should work, but ensure z-index is okay */
+     z-index: 2;
+}
+
+/* --- Dropdown Positioning & Styling --- */
+/* FIX Issue #3: Ensure dropdown appears on top */
+.audience-selector-wrapper .slds-dropdown {
+    /* Higher z-index to ensure it's above other elements */
+    z-index: 7001; /* LWC modal z-index is 7000, so 7001 should be safe */
+    /* Optional: Add a subtle box-shadow for better visual separation */
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.16);
+}
+
+/* --- List Item Styling --- */
+.audience-selector-wrapper .slds-listbox__item {
+    cursor: pointer; /* Indicate items are clickable */
+    transition: background-color 0.1s linear; /* Smooth background transition */
+}
+
+/* Inner div containing the media object */
+.audience-selector-wrapper .slds-listbox__item > .slds-media {
+    padding: var(--lwc-spacingXSmall, 0.5rem) var(--lwc-spacingSmall, 0.75rem); /* Consistent padding */
+}
+
+
+/* FIX Issue #4: Zebra Striping */
+.audience-selector-wrapper .slds-listbox__item:nth-child(odd) > .slds-media {
+    background-color: var(--lwc-colorBackgroundAlt, #f9f9f9); /* Very light grey for odd items */
+}
+.audience-selector-wrapper .slds-listbox__item:nth-child(even) > .slds-media {
+    background-color: var(--lwc-colorBackground, #ffffff); /* White for even items */
+}
+
+/* FIX Issue #6: Hover Effect */
+.audience-selector-wrapper .slds-listbox__item:hover > .slds-media {
+    background-color: var(--lwc-colorBackgroundRowHover, #f3f2f2); /* Standard LWC hover color */
+}
+
+/* --- Keyboard Navigation Highlight (Existing) --- */
+/* Ensure keyboard highlight overrides zebra striping and hover */
+.audience-selector-wrapper .slds-listbox__item.keyboard-highlight > .slds-media {
+    background-color: var(--lwc-colorBackgroundRowHover, #f3f2f2);
+}
+
+/* FIX Issue #7: Selected Option Background */
+/* Style for the currently selected item (when dropdown is open) */
+.audience-selector-wrapper .slds-listbox__item[aria-selected="true"] > .slds-media, /* Can use aria-selected if managed correctly */
+.audience-selector-wrapper .slds-listbox__item.is-selected > .slds-media { /* Or use a custom class */
+    background-color: #e0e0ff; /* Light blue/purple for selected */
+    /* Ensure text is still readable */
+    color: var(--lwc-colorTextDefault, #080707);
+}
+
+/* Ensure hover/keyboard on the selected item looks distinct */
+.audience-selector-wrapper .slds-listbox__item.is-selected:hover > .slds-media,
+.audience-selector-wrapper .slds-listbox__item.is-selected.keyboard-highlight > .slds-media {
+     background-color: #c0c0ff; /* Slightly darker shade for hover/focus on selected */
+}
+
+/* --- Text Styling within Options --- */
+.audience-name-text,
+.audience-rule-text {
+    white-space: normal;
+    word-break: break-word; /* Allow long text to wrap */
+    display: block; /* Ensure they take full width */
+}
+
+/* FIX Issue #5: Audience Rule Font */
+.audience-rule-text {
+    font-size: 0.8125rem; /* Slightly smaller than default */
+    font-weight: 300; /* Lighter font weight */
+    color: var(--lwc-colorTextWeak, #3e3e3c); /* Slightly muted color */
+    margin-top: var(--lwc-spacingXxSmall, 0.25rem); /* Add a little space above rule */
+}
+
+/* --- Selected Rule Display Below Input (Existing) --- */
+.selected-rule-display {
+    white-space: normal;
+    word-break: break-word;
+    font-size: 0.875rem;
+    color: var(--lwc-colorTextLabel, #3e3e3c);
+    background-color: var(--lwc-colorBackgroundInput, #ffffff);
+    border: 1px solid var(--lwc-colorBorderInput, #c9c9c9);
+    border-radius: var(--lwc-borderRadiusMedium, .25rem);
+    padding: var(--lwc-spacingXSmall, 0.5rem) var(--lwc-spacingSmall, 0.75rem);
+    margin-top: var(--lwc-spacingXSmall, 0.5rem); /* Add margin if needed */
+}
+
+/* --- Loading Spinner --- */
+.audience-selector-wrapper .slds-listbox {
+    /* Ensure listbox doesn't have excessive height when spinner shows */
+    min-height: 50px;
+}
+.audience-selector-wrapper .slds-align_absolute-center {
+    padding: var(--lwc-spacingMedium, 1rem);
+}
+
+.audience-selector-wrapper .slds-dropdown_length-7 .slds-listbox_vertical {
+    max-height: 12.5rem; /* Or your desired height for 7 items */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* For smoother scrolling on mobile */
+}
+
+/* --- No Results Found --- */
+.audience-selector-wrapper .slds-listbox__item .slds-listbox__option_plain {
+    padding: var(--lwc-spacingXSmall, 0.5rem) var(--lwc-spacingSmall, 0.75rem);
+    color: var(--lwc-colorTextWeak, #3e3e3c);
+}

@@ -1,0 +1,91 @@
+<template>
+  <div class="audience-selector-wrapper slds-form-element">
+      <label class="slds-form-element__label" for="audience-input" lwc:ref="labelRef">{label}</label>
+      <div class="slds-form-element__control">
+          <div class="slds-combobox_container">
+              <div class={comboboxClass} aria-expanded={showDropdown} aria-haspopup="listbox" role="combobox">
+                  <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                      <lightning-input
+                          id="audience-input"
+                          class="audience-input-field"
+                          label={label}
+                          variant="label-hidden"
+                          value={displayValue}
+                          onfocus={handleFocus}
+                          onblur={handleBlur}
+                          onchange={handleInputChange}
+                          onclick={handleFocus}
+                          onkeydown={handleKeyDown}
+                          aria-autocomplete="list"
+                          aria-controls="audience-listbox"
+                          aria-activedescendant={highlightedOptionId}
+                          autocomplete="off"
+                          role="textbox">
+                      </lightning-input>
+                      <!-- type="search" -->
+                      <!-- placeholder={placeholderText} -->
+                    </div>
+
+                  <div if:true={showDropdown}
+                       id="audience-listbox"
+                       class={dropdownClass}
+                       role="listbox"
+                       tabindex="-1"
+                       onmousedown={handleDropdownMouseDown}
+                       onmouseup={handleDropdownMouseUp}
+                       onkeydown={handleKeyDown}
+                       lwc:ref="dropdownRef">
+
+                      <template if:true={isLoading}>
+                          <div class="slds-align_absolute-center slds-var-p-vertical_medium">
+                              <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
+                          </div>
+                      </template>
+                      <template if:false={isLoading}>
+                          <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                              <template if:true={hasFilteredOptions}>
+                                  <template for:each={filteredOptions} for:item="option" for:index="index">
+                                      <li role="option"
+                                          class="slds-listbox__item"
+                                          key={option.id}
+                                          id={option.domId}
+                                          aria-selected={option.highlighted}
+                                          data-domid={option.domId}
+                                          data-index={index}
+                                          onclick={handleSelect}
+                                    >
+
+                                          <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_center" role="presentation">
+                                              <span class="slds-media__body">
+                                                  <span class="slds-listbox__option slds-listbox__option-text_entity">  
+                                                    <span class="audience-name-text">{option.audienceId}</span>
+                                                  </span>
+                                                  <span class="slds-listbox__option-meta __slds-listbox__option-meta___entity">
+                                                      <span class="audience-rule-text">{option.audienceRule}</span>
+                                                  </span>
+                                              </span>
+                                          </div>
+                                      </li>
+                                  </template>
+                              </template>
+                              <template if:false={hasFilteredOptions}>
+                                  <li role="presentation" class="slds-listbox__item">
+                                      <span class="slds-media slds-listbox__option slds-listbox__option_plain" role="option">
+                                          <span class="slds-truncate" title="No results found">No results found</span>
+                                      </span>
+                                  </li>
+                              </template>
+                          </ul>
+                      </template>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <template if:true={selectedAudience}>
+           <div class="selected-rule-display slds-form-element__help slds-var-m-top_xx-small">
+              <strong>Selected Rule:</strong> {selectedAudience.audienceRule}
+           </div>
+      </template>
+  </div>
+</template>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>63.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Audience Selector Custom Property Editor</masterLabel>
+    <description>A custom property editor to select an Audience and its Rule.</description>
+    <targets>
+        <target>lightning__PropertyEditor</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property
+                name="label"
+                type="String"
+                label="Component Label"
+                description="Label displayed above the selector."
+                default="Select Audience"/>
+            <property
+                name="value"
+                type="String"
+                label="Selected Audience ID"
+                description="[RESERVED] Automatically binds to the property value being edited. Do not configure directly."/>
+             <property
+                name="placeholderText"
+                type="String"
+                label="Placeholder Text"
+                description="Placeholder text for the search input."
+                default="Search or select an Audience..."/>
+            </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
